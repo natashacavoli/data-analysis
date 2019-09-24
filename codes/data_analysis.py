@@ -1,9 +1,10 @@
 """."""
 from wordcloud import WordCloud, STOPWORDS
 from datetime import datetime
+import collections
 import matplotlib.pyplot as pyplot
-import pandas
 import nltk
+import pandas
 import string
 
 
@@ -21,31 +22,7 @@ class DataAnalysis(object):
 
         return r
 
-    def _tokenizer(self, text):
-        """."""
-        try:
-            tokens = nltk.tokenize.word_tokenize(
-                text)
-
-            _stopwords = nltk.corpus.stopwords.words("portuguese")
-
-            _punctuation = list(string.punctuation)
-
-            tokens = [
-                t for t in tokens if t not in _stopwords and
-                t not in _punctuation
-            ]
-
-            return tokens
-
-        except:
-
-            nltk.download("punkt")
-            nltk.download("stopwords")
-
-            return self._tokenizer(text=text)
-
-    def filtrar_essays(self):
+    def _filtrar_essays(self):
         """."""
         _df = self._obter_dados()
 
@@ -85,7 +62,7 @@ class DataAnalysis(object):
 
             return self.gerar_melhores_essays()
 
-        _list_df = self.filtrar_essays()
+        _list_df = self._filtrar_essays()
 
         for df in _list_df:
 
@@ -108,6 +85,58 @@ class DataAnalysis(object):
 
         return "Yas"
 
-    def a(self):
+    def _tokenizer(self, text):
         """."""
-        pass
+        try:
+            tokens = nltk.tokenize.word_tokenize(
+                text)
+
+            _stopwords = nltk.corpus.stopwords.words("portuguese")
+
+            _punctuation = list(string.punctuation)
+
+            tokens = [
+                t for t in tokens if t not in _stopwords and
+                t not in _punctuation
+            ]
+
+            return tokens
+
+        except Exception as e:
+
+            nltk.download("punkt")
+            nltk.download("stopwords")
+
+            raise Exception(e)
+
+        return
+
+    def _obter_frequencia(self, tokens):
+        """."""
+        frequency = collections.Counter(tokens)
+
+        frequency = frequency.most_common()
+
+        return frequency
+
+    def teste(self):
+        """."""
+        _list_df = self._filtrar_essays()
+
+        # Um df com diversas essays agrupadas
+        _df = _list_df[0]
+
+        # Primeira essay
+        _essay = _df.iloc[0]
+
+        # Pensar em uma forma de obter a melhor essay
+
+        _text = _essay["essay_text"]
+        # Removendo o encode p/ nao causar conflitos
+        _text = _text.decode("utf-8")
+
+        _tokens = self._tokenizer(text=_text)
+
+        _frequency = self._obter_frequencia(tokens=_tokens)
+
+        return _frequency
